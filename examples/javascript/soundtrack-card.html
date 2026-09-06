@@ -1,193 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoundtrackDB Embed Widget Example</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #090b10;
-      --card-bg: #12151e;
-      --border: rgba(255, 255, 255, 0.08);
-      --accent: #22c55e;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-    }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .widget-container {
-      width: 100%;
-      max-width: 440px;
-    }
-    .search-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    input {
-      flex: 1;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-    }
-    input:focus {
-      border-color: var(--accent);
-    }
-    button {
-      background: var(--accent);
-      color: #000;
-      font-weight: 700;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-    .soundtrack-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
-    .cover-art {
-      width: 100px;
-      height: 100px;
-      border-radius: 10px;
-      object-fit: cover;
-      background: #1e2433;
-    }
-    .card-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .movie-title {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-      margin: 0 0 4px 0;
-      font-weight: 700;
-    }
-    .soundtrack-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin: 0 0 6px 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .meta-details {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin: 0 0 12px 0;
-    }
-    .listen-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      padding: 6px 14px;
-      border-radius: 20px;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-    .listen-btn:hover {
-      background: var(--accent);
-      color: #000;
-    }
-    .status {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="widget-container">
-    <div class="search-bar">
-      <input type="text" id="imdbInput" value="tt15239678" placeholder="Enter IMDb ID (e.g. tt15239678)">
-      <button id="fetchBtn">Resolve</button>
-    </div>
-
-    <div id="card" class="soundtrack-card">
-      <img id="coverImg" class="cover-art" src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=80" alt="Soundtrack Cover">
-      <div class="card-info">
-        <div id="movieTitle" class="movie-title">Dune: Part Two (2024)</div>
-        <div id="soundtrackTitle" class="soundtrack-title">Original Motion Picture Soundtrack</div>
-        <div id="metaDetails" class="meta-details">Hans Zimmer · 25 Tracks</div>
-        <a id="spotifyLink" class="listen-btn" href="#" target="_blank" rel="noopener">
-          <span>▶ Play on Spotify</span>
-        </a>
-      </div>
-    </div>
-    <div id="status" class="status">Powered by SoundtrackDB API</div>
-  </div>
-
-  <script>
-    const API_BASE = 'https://soundtrackdb.vercel.app';
-
-    async function loadSoundtrack(imdbId) {
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = 'Resolving verified playlist...';
-
-      try {
-        const res = await fetch(`${API_BASE}/v1/titles/imdb/${encodeURIComponent(imdbId)}/music`);
-        if (!res.ok) throw new Error('Soundtrack not found');
-        const data = await res.json();
-
-        document.getElementById('movieTitle').textContent = `${data.title.name} (${data.title.year})`;
-        document.getElementById('soundtrackTitle').textContent = data.soundtrack.title;
-        document.getElementById('metaDetails').textContent = `${data.soundtrack.track_count} Tracks · Verified Match`;
-        document.getElementById('spotifyLink').href = data.soundtrack.spotify_url;
-
-        if (data.soundtrack.images && data.soundtrack.images.length > 0) {
-          document.getElementById('coverImg').src = data.soundtrack.images[0].url;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundtrackDB Playlist Widget | Plug & Play</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
 
-        statusEl.textContent = 'Data resolved in real-time from SoundtrackDB.';
-      } catch (err) {
-        statusEl.textContent = 'Error: ' + err.message;
-      }
-    }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
 
-    document.getElementById('fetchBtn').addEventListener('click', () => {
-      const id = document.getElementById('imdbInput').value.trim();
-      if (id) loadSoundtrack(id);
-    });
+        /* Custom scrollbar for high-density list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
 
-    // Auto-load initial demo
-    loadSoundtrack('tt15239678');
-  </script>
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Smooth expansion */
+        .playlist-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .playlist-content.expanded {
+            grid-template-rows: 1fr;
+        }
+
+        /* Title Marquee Animation */
+        @keyframes titleMarquee {
+            0%, 20% {
+                transform: translateX(0);
+            }
+            80%, 100% {
+                transform: translateX(var(--marquee-dist, -40px));
+            }
+        }
+
+        .marquee-anim {
+            animation: titleMarquee var(--marquee-dur, 8s) ease-in-out infinite alternate;
+        }
+
+        .marquee-anim:hover {
+            animation-play-state: paused;
+        }
+
+        .marquee-mask {
+            mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 16px), transparent 100%);
+            -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 16px), transparent 100%);
+        }
+
+        @keyframes bounce {
+            0%, 100% { height: 4px; }
+            50% { height: 12px; }
+        }
+
+        /* Pulse glow for loading */
+        .loading-shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#0b0d13] text-slate-100 flex flex-col min-h-screen items-center justify-center p-4 antialiased selection:bg-[#1DB954]/20 selection:text-[#1DB954]">
+
+    <!-- Plug & Play Quick Demo Controls (Top Bar) -->
+    <div class="w-full max-w-[440px] mb-4 space-y-2">
+        <div class="flex items-center justify-between text-xs text-white/50 px-1">
+            <span class="font-medium flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#1DB954]"></span>
+                Plug & Play Widget Demo
+            </span>
+            <button id="copy-embed-btn" class="hover:text-white transition-colors flex items-center gap-1 text-[11px] font-mono bg-white/[0.04] hover:bg-white/[0.08] px-2 py-1 rounded border border-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                Copy Embed Code
+            </button>
+        </div>
+
+        <!-- Quick Preset Switcher -->
+        <div class="flex gap-1.5 overflow-x-auto pb-1 text-xs">
+            <button class="preset-btn px-2.5 py-1 rounded-md bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all whitespace-nowrap active:scale-95" data-imdb="tt15239678">
+                Dune: Part Two
+            </button>
+            <button class="preset-btn px-2.5 py-1 rounded-md bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all whitespace-nowrap active:scale-95" data-imdb="tt0816692">
+                Interstellar
+            </button>
+            <button class="preset-btn px-2.5 py-1 rounded-md bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all whitespace-nowrap active:scale-95" data-imdb="tt15398776">
+                Oppenheimer
+            </button>
+            <button class="preset-btn px-2.5 py-1 rounded-md bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all whitespace-nowrap active:scale-95" data-imdb="tt13070038">
+                Queen of Tears
+            </button>
+        </div>
+
+        <!-- Custom Input -->
+        <div class="flex gap-1.5">
+            <input type="text" id="custom-imdb-input" placeholder="Or enter IMDb ID (e.g. tt15239678)..."
+                class="flex-1 bg-white/[0.03] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#1DB954]/50 transition-colors font-mono">
+            <button id="resolve-custom-btn"
+                class="bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors active:scale-95">
+                Load
+            </button>
+        </div>
+    </div>
+
+    <!-- The "Gold Standard" Widget Wrapper -->
+    <div id="soundtrackdb-widget-container"
+        data-imdb="tt15239678"
+        class="soundtrackdb-widget w-full max-w-[440px] mx-auto bg-[#09090b] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.08),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),0px_6px_6px_-3px_rgba(0,0,0,0.04),0px_12px_12px_-6px_rgba(0,0,0,0.04),0px_24px_24px_-12px_rgba(0,0,0,0.04)] rounded-xl overflow-hidden ring-1 ring-white/10">
+
+        <!-- Main Header Section -->
+        <div class="relative flex items-center p-4 gap-4 bg-gradient-to-b from-white/[0.04] to-transparent">
+
+            <!-- Artwork Component -->
+            <div class="relative group flex-shrink-0">
+                <div
+                    class="absolute -inset-1 bg-[#1DB954]/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500">
+                </div>
+                <div class="relative w-14 h-14 rounded-md overflow-hidden ring-1 ring-white/10 shadow-2xl bg-[#18181b]">
+                    <img id="widget-cover-img"
+                        src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=200&h=200&auto=format&fit=crop"
+                        alt="Playlist Cover"
+                        class="object-cover w-full h-full scale-105 group-hover:scale-110 transition-transform duration-700 ease-out">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
+                </div>
+            </div>
+
+            <!-- Title & Metadata -->
+            <div class="flex-grow min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                    <span id="widget-badge"
+                        class="inline-flex items-center px-1.5 py-0.5 rounded text-[8.5px] font-bold tracking-widest uppercase bg-[#1DB954]/10 text-[#1DB954] ring-1 ring-[#1DB954]/20">
+                        ORIGINAL
+                    </span>
+                    <span id="widget-year" class="text-[9.5px] font-mono text-white/30">
+                        2024
+                    </span>
+                </div>
+                <div id="title-wrap" class="w-full overflow-hidden whitespace-nowrap">
+                    <h3 id="title-el" class="text-white font-semibold tracking-tight text-[13.5px] inline-block">
+                        Dune: Part Two // Original Soundtrack
+                    </h3>
+                </div>
+                <p id="widget-subtitle" class="text-white/40 text-[10.5px] tracking-normal truncate">
+                    Curated by <span class="text-white/60 hover:text-white transition-colors cursor-pointer">Hans Zimmer · SoundtrackDB</span>
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-1.5 ml-2">
+                <!-- External Link Button (Direct to Spotify) -->
+                <a id="widget-spotify-link" href="https://spotify.com" target="_blank" rel="noopener"
+                    title="Open on Spotify"
+                    class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.03] text-white/60 hover:text-white hover:bg-white/[0.08] ring-1 ring-white/10 transition-all active:scale-95 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="transition-transform group-hover:text-green-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300">
+                        <path d="M15 3h6v6" />
+                        <path d="M10 14 21 3" />
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    </svg>
+                </a>
+
+                <!-- Expand List Button -->
+                <button id="toggle-list"
+                    title="Toggle track list"
+                    class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.03] text-white/60 hover:text-white hover:bg-white/[0.08] ring-1 ring-white/10 transition-all active:scale-95">
+                    <svg id="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="transition-transform duration-300">
+                        <path d="m6 9 6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- High-Density Track List & Player (Expandable) -->
+        <div id="playlist-container" class="playlist-content overflow-hidden">
+            <div class="min-h-0 border-t border-white/5 bg-black/20 overflow-hidden">
+                
+                <!-- Tab Controls: Preview vs Interactive Player -->
+                <div class="px-3 pt-2 pb-1 flex items-center justify-between border-b border-white/[0.04]">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-white/40">Soundtrack Playlist</span>
+                    <div class="flex gap-1 text-[10px] font-medium">
+                        <button id="tab-list-btn" class="px-2 py-0.5 rounded bg-white/10 text-white transition-colors">Tracks</button>
+                        <button id="tab-player-btn" class="px-2 py-0.5 rounded text-white/40 hover:text-white transition-colors">Spotify Player</button>
+                    </div>
+                </div>
+
+                <!-- View 1: High Density Track List -->
+                <div id="view-tracklist" class="p-2 space-y-0.5 max-h-[280px] overflow-y-auto custom-scrollbar">
+                    <!-- Dynamic Tracks Injected Here -->
+                    <div class="group flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.04] transition-colors cursor-default">
+                        <div class="w-4 flex justify-center">
+                            <div class="flex gap-[2px] items-end h-3">
+                                <div class="w-[2px] bg-[#1DB954] animate-[bounce_0.8s_infinite]"></div>
+                                <div class="w-[2px] bg-[#1DB954] animate-[bounce_1.1s_infinite_0.1s]"></div>
+                                <div class="w-[2px] bg-[#1DB954] animate-[bounce_0.9s_infinite_0.2s]"></div>
+                            </div>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="text-[13px] font-medium text-[#1DB954] truncate">Beginning of the End</div>
+                            <div class="text-[11px] text-white/30 truncate">Hans Zimmer</div>
+                        </div>
+                        <div class="text-[11px] font-mono text-white/20 group-hover:text-white/40 transition-colors">03:43</div>
+                    </div>
+
+                    <div class="group flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.04] transition-colors cursor-default">
+                        <div class="w-4 text-[11px] font-mono text-white/20 text-center group-hover:text-[#1DB954]">02</div>
+                        <div class="flex-grow min-w-0">
+                            <div class="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate">A Time of Quiet Between the Storms</div>
+                            <div class="text-[11px] text-white/30 truncate">Hans Zimmer</div>
+                        </div>
+                        <div class="text-[11px] font-mono text-white/20 group-hover:text-white/40 transition-colors">04:21</div>
+                    </div>
+
+                    <div class="group flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.04] transition-colors cursor-default">
+                        <div class="w-4 text-[11px] font-mono text-white/20 text-center group-hover:text-[#1DB954]">03</div>
+                        <div class="flex-grow min-w-0">
+                            <div class="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate">Harkonnen Arena</div>
+                            <div class="text-[11px] text-white/30 truncate">Hans Zimmer</div>
+                        </div>
+                        <div class="text-[11px] font-mono text-white/20 group-hover:text-white/40 transition-colors">05:22</div>
+                    </div>
+
+                    <div class="group flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.04] transition-colors cursor-default">
+                        <div class="w-4 text-[11px] font-mono text-white/20 text-center group-hover:text-[#1DB954]">04</div>
+                        <div class="flex-grow min-w-0">
+                            <div class="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate">Kiss the Ring</div>
+                            <div class="text-[11px] text-white/30 truncate">Hans Zimmer</div>
+                        </div>
+                        <div class="text-[11px] font-mono text-white/20 group-hover:text-white/40 transition-colors">03:12</div>
+                    </div>
+                </div>
+
+                <!-- View 2: Spotify Interactive Iframe Player -->
+                <div id="view-iframe" class="hidden p-2">
+                    <iframe id="spotify-iframe-embed"
+                        src=""
+                        width="100%" height="240"
+                        frameborder="0"
+                        allowfullscreen=""
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        class="rounded-lg bg-black/40"></iframe>
+                </div>
+
+                <!-- Footer Stats -->
+                <div class="p-3 border-t border-white/5 flex justify-between items-center bg-white/[0.02]">
+                    <div class="flex items-center gap-3">
+                        <span id="widget-track-count" class="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                            Verified Playlist
+                        </span>
+                    </div>
+                    <a id="widget-full-playlist-link" href="https://spotify.com" target="_blank" rel="noopener"
+                        class="text-[10px] font-semibold text-[#1DB954] hover:text-[#1ed760] transition-colors uppercase tracking-widest flex items-center gap-1">
+                        Open on Spotify
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graceful GitHub Repo Attribution Label -->
+        <div class="px-4 py-2 border-t border-white/[0.06] bg-black/40 flex items-center justify-between text-[11px]">
+            <div class="flex items-center gap-1.5 text-white/40">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#1DB954] shadow-[0_0_8px_#1DB954]"></span>
+                <span class="font-medium tracking-wide">SoundTrackDB</span>
+            </div>
+            <a href="https://github.com/soundtrack-db/api" target="_blank" rel="noopener"
+                class="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors group">
+                <svg class="w-3.5 h-3.5 text-white/40 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                <span class="font-mono text-[10px] tracking-tight text-white/50 group-hover:text-[#1DB954] transition-colors">soundtrack-db/api</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Notification Toast for Copy Embed -->
+    <div id="toast" class="fixed bottom-6 bg-[#18181b] border border-white/10 text-xs px-3 py-2 rounded-lg text-white shadow-xl opacity-0 pointer-events-none transition-all transform translate-y-2 flex items-center gap-2">
+        <svg class="w-4 h-4 text-[#1DB954]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Plug & play embed code copied to clipboard!</span>
+    </div>
+
+    <!-- SoundtrackDB Plug & Play Engine -->
+    <script>
+        const API_BASE = 'https://soundtrackdb.vercel.app';
+
+        // Core Widget Controller
+        const SoundtrackWidget = {
+            async load(identifier) {
+                const titleEl = document.getElementById('title-el');
+                const titleWrap = document.getElementById('title-wrap');
+                const coverImg = document.getElementById('widget-cover-img');
+                const badge = document.getElementById('widget-badge');
+                const yearEl = document.getElementById('widget-year');
+                const subtitle = document.getElementById('widget-subtitle');
+                const spotifyLink = document.getElementById('widget-spotify-link');
+                const fullPlaylistLink = document.getElementById('widget-full-playlist-link');
+                const iframe = document.getElementById('spotify-iframe-embed');
+                const trackCountEl = document.getElementById('widget-track-count');
+
+                // Loading visual state
+                titleEl.textContent = 'Resolving verified soundtrack...';
+                titleEl.classList.remove('marquee-anim');
+
+                try {
+                    let endpoint = '';
+                    if (identifier.startsWith('tt')) {
+                        endpoint = `${API_BASE}/v1/titles/imdb/${encodeURIComponent(identifier)}/music`;
+                    } else {
+                        endpoint = `${API_BASE}/v1/titles/resolve?title=${encodeURIComponent(identifier)}`;
+                    }
+
+                    const res = await fetch(endpoint);
+                    if (!res.ok) throw new Error('Soundtrack not found');
+                    const data = await res.json();
+
+                    const titleData = data.title || {};
+                    const musicItem = (data.music && data.music[0]) || {};
+                    const spotifyUrl = musicItem.url || 'https://open.spotify.com';
+
+                    // Update Title & Year
+                    titleEl.textContent = `${titleData.name || 'Soundtrack'} // OST`;
+                    yearEl.textContent = titleData.year || '';
+                    badge.textContent = musicItem.source === 'official' ? 'OFFICIAL' : 'ORIGINAL';
+                    subtitle.innerHTML = `Curated by <span class="text-white/60 hover:text-white transition-colors cursor-pointer">${titleData.name} · SoundtrackDB</span>`;
+
+                    // Update Links
+                    spotifyLink.href = spotifyUrl;
+                    fullPlaylistLink.href = spotifyUrl;
+
+                    // Update Track Count / Source info
+                    trackCountEl.textContent = `${musicItem.platform || 'Spotify'} · ${musicItem.verified ? 'Verified Match' : 'Community Curated'}`;
+
+                    // Extract Spotify ID for iframe embed
+                    const playlistMatch = spotifyUrl.match(/playlist\/([a-zA-Z0-9]+)/);
+                    if (playlistMatch && playlistMatch[1]) {
+                        iframe.src = `https://open.spotify.com/embed/playlist/${playlistMatch[1]}?utm_source=generator&theme=0`;
+                    }
+
+                    // Fetch High-Res Album Cover via Spotify oEmbed
+                    try {
+                        const oembedRes = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(spotifyUrl)}`);
+                        if (oembedRes.ok) {
+                            const oembedData = await oembedRes.json();
+                            if (oembedData.thumbnail_url) {
+                                coverImg.src = oembedData.thumbnail_url;
+                            }
+                            if (oembedData.title) {
+                                titleEl.textContent = oembedData.title;
+                            }
+                        }
+                    } catch (e) {
+                        // Keep current cover if oEmbed is unreachable
+                    }
+
+                    // Re-calculate marquee for long titles
+                    this.adjustMarquee();
+
+                } catch (err) {
+                    titleEl.textContent = 'Soundtrack unavailable';
+                    subtitle.textContent = 'Could not resolve playlist';
+                    console.error('Widget load error:', err);
+                }
+            },
+
+            adjustMarquee() {
+                const titleWrap = document.getElementById('title-wrap');
+                const titleEl = document.getElementById('title-el');
+                if (!titleWrap || !titleEl) return;
+
+                titleEl.classList.remove('marquee-anim');
+                titleWrap.classList.remove('marquee-mask');
+
+                // Wait for layout render
+                setTimeout(() => {
+                    const overflow = titleEl.scrollWidth - titleWrap.clientWidth;
+                    if (overflow > 6) {
+                        const duration = Math.max(5, Math.min(16, (overflow / 22) + 4));
+                        titleEl.style.setProperty('--marquee-dist', `-${overflow + 8}px`);
+                        titleEl.style.setProperty('--marquee-dur', `${duration.toFixed(1)}s`);
+                        titleEl.classList.add('marquee-anim');
+                        titleWrap.classList.add('marquee-mask');
+                    }
+                }, 50);
+            }
+        };
+
+        // Expansion Toggle
+        const toggleBtn = document.getElementById('toggle-list');
+        const container = document.getElementById('playlist-container');
+        const arrow = document.getElementById('arrow-icon');
+
+        toggleBtn.addEventListener('click', () => {
+            const isExpanded = container.classList.toggle('expanded');
+            if (isExpanded) {
+                arrow.style.transform = 'rotate(180deg)';
+                toggleBtn.classList.add('bg-white/10', 'text-white');
+            } else {
+                arrow.style.transform = 'rotate(0deg)';
+                toggleBtn.classList.remove('bg-white/10', 'text-white');
+            }
+        });
+
+        // Tab Switching (Tracks vs Player)
+        const tabListBtn = document.getElementById('tab-list-btn');
+        const tabPlayerBtn = document.getElementById('tab-player-btn');
+        const viewTracklist = document.getElementById('view-tracklist');
+        const viewIframe = document.getElementById('view-iframe');
+
+        tabListBtn.addEventListener('click', () => {
+            tabListBtn.className = 'px-2 py-0.5 rounded bg-white/10 text-white transition-colors';
+            tabPlayerBtn.className = 'px-2 py-0.5 rounded text-white/40 hover:text-white transition-colors';
+            viewTracklist.classList.remove('hidden');
+            viewIframe.classList.add('hidden');
+        });
+
+        tabPlayerBtn.addEventListener('click', () => {
+            tabPlayerBtn.className = 'px-2 py-0.5 rounded bg-white/10 text-white transition-colors';
+            tabListBtn.className = 'px-2 py-0.5 rounded text-white/40 hover:text-white transition-colors';
+            viewTracklist.classList.add('hidden');
+            viewIframe.classList.remove('hidden');
+        });
+
+        // Presets Click Handlers
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const imdb = btn.getAttribute('data-imdb');
+                document.getElementById('custom-imdb-input').value = imdb;
+                SoundtrackWidget.load(imdb);
+            });
+        });
+
+        // Custom Input Handler
+        document.getElementById('resolve-custom-btn').addEventListener('click', () => {
+            const val = document.getElementById('custom-imdb-input').value.trim();
+            if (val) SoundtrackWidget.load(val);
+        });
+
+        document.getElementById('custom-imdb-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                if (val) SoundtrackWidget.load(val);
+            }
+        });
+
+        // Copy Embed Code Snippet
+        document.getElementById('copy-embed-btn').addEventListener('click', () => {
+            const currentImdb = document.getElementById('custom-imdb-input').value.trim() || 'tt15239678';
+            const embedCode = `<!-- SoundtrackDB Widget (Plug & Play) -->
+<div class="soundtrackdb-widget" data-imdb="${currentImdb}"></div>
+<script src="https://soundtrackdb.vercel.app/widget.js" async><\/script>`;
+
+            navigator.clipboard.writeText(embedCode).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+                }, 3000);
+            });
+        });
+
+        // Press Micro-interactions
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => { el.style.transform = 'scale(0.96)'; });
+            el.addEventListener('mouseup', () => { el.style.transform = ''; });
+            el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+        });
+
+        // Initialize from URL parameter (?imdb=tt... or ?title=...) or default to Dune: Part Two
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialQuery = urlParams.get('imdb') || urlParams.get('title') || 'tt15239678';
+        document.getElementById('custom-imdb-input').value = initialQuery;
+        SoundtrackWidget.load(initialQuery);
+    </script>
 </body>
+
 </html>
