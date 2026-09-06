@@ -63,10 +63,11 @@ Explore plug-and-play recipes in the [`examples/`](./examples) directory:
 
 | Language / Framework | Description | Path |
 | :--- | :--- | :--- |
-| **cURL** | Bash one-liners and quick queries | [`examples/curl/quickstart.sh`](./examples/curl/quickstart.sh) |
+| **Plug & Play Widget** | Self-contained embed widget with audio previews | [`examples/javascript/widget-demo.html`](./examples/javascript/widget-demo.html) |
+| **Vanilla HTML/CSS Card** | Custom soundtrack card layout with Tailwind | [`examples/javascript/soundtrack-card.html`](./examples/javascript/soundtrack-card.html) |
 | **JavaScript / Node.js** | Native `fetch` wrapper (Node 18+ & browser) | [`examples/javascript/fetch-soundtrack.js`](./examples/javascript/fetch-soundtrack.js) |
-| **Vanilla HTML/CSS Card** | Embeddable soundtrack widget with album art | [`examples/javascript/soundtrack-card.html`](./examples/javascript/soundtrack-card.html) |
 | **Python** | Zero-dependency client using standard `urllib` | [`examples/python/get_soundtrack.py`](./examples/python/get_soundtrack.py) |
+| **cURL** | Bash one-liners and quick queries | [`examples/curl/quickstart.sh`](./examples/curl/quickstart.sh) |
 
 ---
 
