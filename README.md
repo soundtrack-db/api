@@ -57,6 +57,24 @@ curl -s "https://soundtrackdb.vercel.app/v1/titles/resolve?title=Interstellar&ye
 
 ---
 
+## 🎵 Plug & Play Soundtrack Widget
+
+Drop a responsive, high-polish soundtrack player into any webpage or blog in two lines of HTML — featuring full tracklists and interactive 30-second audio previews:
+
+```html
+<!-- 1. Target container with IMDb ID (e.g. Interstellar - tt0816692) -->
+<div class="soundtrackdb-widget" data-imdb="tt0816692"></div>
+
+<!-- 2. Drop-in script (zero CSS dependencies, self-mounting) -->
+<script src="https://soundtrackdb.vercel.app/widget.js" async></script>
+```
+
+<p align="center">
+  <img src="assets/widget-preview.png" alt="SoundtrackDB Plug & Play Widget Preview" width="460" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+</p>
+
+---
+
 ## 📂 Developer Recipes & Examples
 
 Explore plug-and-play recipes in the [`examples/`](./examples) directory:
