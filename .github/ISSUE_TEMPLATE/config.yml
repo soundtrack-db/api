@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Live SoundtrackDB Web Tester
+    url: https://soundtrackdb.vercel.app
+    about: Test any IMDb ID, TMDB ID, or title search directly in your browser.
+  - name: Interactive API Documentation
+    url: https://soundtrackdb.vercel.app/docs
+    about: Complete endpoint reference, response schemas, and curl snippets.

@@ -1,0 +1,23 @@
+name: "💡 API Feedback or Feature Request"
+description: "Suggest a new endpoint, client library request, or API enhancement."
+title: "[Feedback]: "
+labels: ["enhancement", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for how SoundtrackDB can better serve developers, media servers, or widgets? Let us know!
+  - type: textarea
+    id: idea
+    attributes:
+      label: Description of Suggestion
+      placeholder: "e.g. Add webhook notifications on new soundtracks, Plex plugin support, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case / Context
+      placeholder: "How would this feature help your project or application?"
+    validations:
+      required: false

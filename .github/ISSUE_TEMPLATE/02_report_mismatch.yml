@@ -1,0 +1,38 @@
+name: "⚠️ Report Incorrect or Broken Soundtrack"
+description: "Report an inaccurate playlist match, broken link, or wrong season/volume."
+title: "[Mismatch Report]: "
+labels: ["mismatch", "data-quality"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report an issue with an existing title in the SoundtrackDB catalog.
+  - type: input
+    id: query_or_id
+    attributes:
+      label: IMDb ID or Title Slug
+      description: The identifier queried when this issue occurred.
+      placeholder: "e.g. tt0816692 or interstellar-2014"
+    validations:
+      required: true
+  - type: input
+    id: returned_url
+    attributes:
+      label: Current Returned Spotify URL
+      placeholder: "https://open.spotify.com/playlist/..."
+    validations:
+      required: true
+  - type: textarea
+    id: problem_description
+    attributes:
+      label: What is wrong with this mapping?
+      placeholder: "e.g. Returned a fan-made playlist instead of the official Hans Zimmer score; track count is zero; playlist is deleted, etc."
+    validations:
+      required: true
+  - type: input
+    id: correct_url
+    attributes:
+      label: Suggested Correct Spotify URL (Optional)
+      placeholder: "https://open.spotify.com/album/... or playlist/..."
+    validations:
+      required: false

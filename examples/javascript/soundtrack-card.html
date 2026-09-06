@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoundtrackDB Embed Widget Example</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b10;
+      --card-bg: #12151e;
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #22c55e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .widget-container {
+      width: 100%;
+      max-width: 440px;
+    }
+    .search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    input {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--accent);
+    }
+    button {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .soundtrack-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .cover-art {
+      width: 100px;
+      height: 100px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #1e2433;
+    }
+    .card-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .movie-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin: 0 0 4px 0;
+      font-weight: 700;
+    }
+    .soundtrack-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .meta-details {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 0 0 12px 0;
+    }
+    .listen-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .listen-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+    .status {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="widget-container">
+    <div class="search-bar">
+      <input type="text" id="imdbInput" value="tt15239678" placeholder="Enter IMDb ID (e.g. tt15239678)">
+      <button id="fetchBtn">Resolve</button>
+    </div>
+
+    <div id="card" class="soundtrack-card">
+      <img id="coverImg" class="cover-art" src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=80" alt="Soundtrack Cover">
+      <div class="card-info">
+        <div id="movieTitle" class="movie-title">Dune: Part Two (2024)</div>
+        <div id="soundtrackTitle" class="soundtrack-title">Original Motion Picture Soundtrack</div>
+        <div id="metaDetails" class="meta-details">Hans Zimmer · 25 Tracks</div>
+        <a id="spotifyLink" class="listen-btn" href="#" target="_blank" rel="noopener">
+          <span>▶ Play on Spotify</span>
+        </a>
+      </div>
+    </div>
+    <div id="status" class="status">Powered by SoundtrackDB API</div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://soundtrackdb.vercel.app';
+
+    async function loadSoundtrack(imdbId) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = 'Resolving verified playlist...';
+
+      try {
+        const res = await fetch(`${API_BASE}/v1/titles/imdb/${encodeURIComponent(imdbId)}/music`);
+        if (!res.ok) throw new Error('Soundtrack not found');
+        const data = await res.json();
+
+        document.getElementById('movieTitle').textContent = `${data.title.name} (${data.title.year})`;
+        document.getElementById('soundtrackTitle').textContent = data.soundtrack.title;
+        document.getElementById('metaDetails').textContent = `${data.soundtrack.track_count} Tracks · Verified Match`;
+        document.getElementById('spotifyLink').href = data.soundtrack.spotify_url;
+
+        if (data.soundtrack.images && data.soundtrack.images.length > 0) {
+          document.getElementById('coverImg').src = data.soundtrack.images[0].url;
+        }
+
+        statusEl.textContent = 'Data resolved in real-time from SoundtrackDB.';
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    }
+
+    document.getElementById('fetchBtn').addEventListener('click', () => {
+      const id = document.getElementById('imdbInput').value.trim();
+      if (id) loadSoundtrack(id);
+    });
+
+    // Auto-load initial demo
+    loadSoundtrack('tt15239678');
+  </script>
+</body>
+</html>

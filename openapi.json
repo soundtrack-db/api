@@ -1,0 +1,458 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SoundTrackDB API",
+    "description": "Free Movie & TV Soundtrack API engine by CNF1G & shreyash. Instant IMDb/TMDB/slug resolution to verified Spotify playlists with zero credentials required.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "cnf1g & shreyash · CNF1G",
+      "url": "https://github.com/soundtrack-db/api"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://soundtrackdb.vercel.app",
+      "description": "Production Edge Deployment"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Soundtracks",
+      "description": "Movie & TV Soundtrack playlist resolution and management"
+    },
+    {
+      "name": "Observability & System",
+      "description": "Health checks, versioning, and operational metrics"
+    },
+    {
+      "name": "Secondary Utilities",
+      "description": "Also included: Secondary Spotify token and proxy utilities"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Observability & System"],
+        "summary": "Lightweight liveness probe",
+        "description": "Fast process health check that avoids external database queries.",
+        "responses": {
+          "200": {
+            "description": "Service is healthy and responding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/db": {
+      "get": {
+        "tags": ["Observability & System"],
+        "summary": "Turso database readiness probe",
+        "description": "Tests connectivity and roundtrip latency to the Turso database.",
+        "responses": {
+          "200": {
+            "description": "Database is reachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DbHealthResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database is unreachable"
+          }
+        }
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": ["Observability & System"],
+        "summary": "Application version and build info",
+        "description": "Returns semantic version, environment name, and git commit SHA.",
+        "responses": {
+          "200": {
+            "description": "Version details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/titles/imdb/{imdb_id}/music": {
+      "get": {
+        "tags": ["Soundtracks"],
+        "summary": "Resolve soundtrack by IMDb ID",
+        "description": "Resolves a title and verified Spotify playlist using an IMDb ID (e.g. tt13070038). Instant cache hit or on-demand fetch.",
+        "parameters": [
+          {
+            "name": "imdb_id",
+            "in": "path",
+            "required": true,
+            "description": "Valid IMDb ID (e.g. tt13070038)",
+            "schema": {
+              "type": "string",
+              "example": "tt13070038"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "description": "Force re-resolution from Spotify",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Title and soundtrack resolved successfully",
+            "headers": {
+              "X-Request-ID": { "schema": { "type": "string" } },
+              "X-Cache": { "schema": { "type": "string", "example": "HIT" } },
+              "X-Response-Time": { "schema": { "type": "string", "example": "42.5ms" } }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TitleSoundtrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid IMDb ID format",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Title not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/titles/tmdb/{tmdb_id}/music": {
+      "get": {
+        "tags": ["Soundtracks"],
+        "summary": "Resolve soundtrack by TMDB ID",
+        "description": "Resolves a title and verified Spotify playlist using a numeric TMDB ID.",
+        "parameters": [
+          {
+            "name": "tmdb_id",
+            "in": "path",
+            "required": true,
+            "description": "Numeric TMDB ID (e.g. 993710)",
+            "schema": {
+              "type": "string",
+              "example": "993710"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Media type: movie or tv",
+            "schema": {
+              "type": "string",
+              "enum": ["movie", "tv"]
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean", "default": false }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resolved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TitleSoundtrackResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Title not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/titles/slug/{slug}/music": {
+      "get": {
+        "tags": ["Soundtracks"],
+        "summary": "Resolve soundtrack by Slug",
+        "description": "Resolves a title and verified Spotify playlist using a URL slug (e.g. apex-2026).",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "Canonical slug (e.g. apex-2026)",
+            "schema": {
+              "type": "string",
+              "example": "apex-2026"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resolved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TitleSoundtrackResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Title not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/titles/resolve": {
+      "get": {
+        "tags": ["Soundtracks"],
+        "summary": "Universal search, resolve & auto-ingest",
+        "description": "Resolves any movie or TV title by query name, year, or slug with fallback auto-ingestion.",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "Queen of Tears" }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "example": 2024 }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "enum": ["movie", "tv"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resolved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TitleSoundtrackResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/titles": {
+      "get": {
+        "tags": ["Soundtracks"],
+        "summary": "List cataloged titles",
+        "description": "Paginated catalog of titles with soundtrack count.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 50 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of titles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": { "type": "string" },
+                    "creator": { "type": "string" },
+                    "success": { "type": "boolean" },
+                    "total": { "type": "integer" },
+                    "offset": { "type": "integer" },
+                    "limit": { "type": "integer" },
+                    "titles": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/TitleItem" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/token": {
+      "get": {
+        "tags": ["Secondary Utilities"],
+        "summary": "Get Spotify Bearer token (Secondary Utility)",
+        "description": "Also included (secondary utility): Returns current anonymous web-player token rotated every 30 minutes via TOTP.",
+        "responses": {
+          "200": {
+            "description": "Active Spotify access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": { "type": "string" },
+                    "token_type": { "type": "string", "example": "Bearer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string" },
+          "creator": { "type": "string" },
+          "success": { "type": "boolean" },
+          "status": { "type": "string", "example": "ok" },
+          "uptime_seconds": { "type": "integer" },
+          "timestamp": { "type": "string" }
+        }
+      },
+      "DbHealthResponse": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string" },
+          "creator": { "type": "string" },
+          "success": { "type": "boolean" },
+          "status": { "type": "string", "example": "ok" },
+          "database": { "type": "string", "example": "reachable" },
+          "latency_ms": { "type": "number", "example": 34.2 },
+          "timestamp": { "type": "string" }
+        }
+      },
+      "VersionResponse": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string" },
+          "creator": { "type": "string" },
+          "success": { "type": "boolean" },
+          "version": { "type": "string", "example": "1.0.0" },
+          "environment": { "type": "string", "example": "production" },
+          "git_commit": { "type": "string", "example": "a1b2c3d" }
+        }
+      },
+      "TitleSoundtrackResponse": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string", "example": "CNF1G" },
+          "creator": { "type": "string", "example": "shreyash" },
+          "success": { "type": "boolean", "example": true },
+          "request_id": { "type": "string", "example": "req_a1b2c3d4e5f6" },
+          "title": { "$ref": "#/components/schemas/TitleItem" },
+          "music": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MusicItem" }
+          }
+        }
+      },
+      "TitleItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "1" },
+          "name": { "type": "string", "example": "Apex" },
+          "year": { "type": "integer", "example": 2026 },
+          "type": { "type": "string", "example": "movie" },
+          "imdb_id": { "type": "string", "example": "tt13070038" },
+          "tmdb_id": { "type": "string", "example": "766507" },
+          "slug": { "type": "string", "example": "apex-2026" }
+        }
+      },
+      "MusicItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "st-1" },
+          "platform": { "type": "string", "example": "spotify" },
+          "type": { "type": "string", "example": "playlist" },
+          "playlist_id": { "type": "string", "example": "37i9dQZF1DXcBWIGoYBM5M" },
+          "url": { "type": "string", "example": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" },
+          "source": { "type": "string", "example": "official" },
+          "verified": { "type": "boolean", "example": true },
+          "confidence": { "type": "number", "example": 1.0 },
+          "match_type": { "type": "string", "example": "exact" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string", "example": "CNF1G" },
+          "creator": { "type": "string", "example": "shreyash" },
+          "success": { "type": "boolean", "example": false },
+          "error": { "type": "string", "example": "Title not found for IMDb ID: tt99999999" },
+          "error_code": { "type": "string", "example": "TITLE_NOT_FOUND" },
+          "request_id": { "type": "string", "example": "req_8f31c2" },
+          "error_details": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string", "example": "TITLE_NOT_FOUND" },
+              "message": { "type": "string", "example": "Title not found for IMDb ID: tt99999999" },
+              "request_id": { "type": "string", "example": "req_8f31c2" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

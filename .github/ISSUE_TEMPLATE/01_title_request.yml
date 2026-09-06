@@ -1,0 +1,47 @@
+name: "🎵 Request a Missing Title Soundtrack"
+description: "Request a Movie or TV Show soundtrack to be mapped and verified in SoundtrackDB."
+title: "[Title Request]: "
+labels: ["title-request", "catalog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping expand the SoundtrackDB catalog! Please provide as much detail as possible so our automated ingestion and verification pipeline can link the official soundtrack playlist.
+  - type: input
+    id: title_name
+    attributes:
+      label: Movie or TV Show Name
+      description: The canonical title of the movie or show.
+      placeholder: "e.g. Interstellar, Severance, Arcane"
+    validations:
+      required: true
+  - type: input
+    id: release_year
+    attributes:
+      label: Release Year
+      placeholder: "e.g. 2024"
+    validations:
+      required: false
+  - type: input
+    id: imdb_id
+    attributes:
+      label: IMDb ID
+      description: Highly recommended for exact 1-to-1 matching.
+      placeholder: "e.g. tt13070038"
+    validations:
+      required: false
+  - type: input
+    id: spotify_playlist
+    attributes:
+      label: Spotify Playlist / Album URL (Optional)
+      description: If you already have the official Spotify soundtrack link, paste it here to speed up verification.
+      placeholder: "https://open.spotify.com/playlist/... or https://open.spotify.com/album/..."
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      placeholder: "e.g. Season 2 OST, Original Motion Picture Soundtrack, etc."
+    validations:
+      required: false
